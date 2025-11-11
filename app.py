@@ -1,11 +1,13 @@
 import streamlit as st
 from langchain_groq import ChatGroq
 from langchain_community.utilities import WikipediaAPIWrapper, ArxivAPIWrapper
-from langchain_community.tools import WikipediaQueryRun, ArxivQueryRun, DuckDuckGoSearchRun
-#from langchain.agents import initialize_agent, agent_types
+from langchain_community.tools import WikipediaQueryRun, ArxivQueryRun, DuckDuckGoSearchRun 
 #from langchain.agents import initialize_agent, AgentType
+from langchain.agents import create_tool_calling_agent (and refactor logic)
 
-from langchain.callbacks import StreamlitCallbackHandler ## allows you to communicate with all this tools
+#from langchain.callbacks import StreamlitCallbackHandler ## allows you to communicate with all this tools
+from langchain_community.callbacks import StreamlitCallbackHandle
+
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -88,4 +90,5 @@ if prompt:=st.chat_input(placeholder="What is Machine Learning?"):
         st.session_state.messages.append({"role":"assistant", "content": response})
         #st.write(response)
         st.write(str(response))
+
 
