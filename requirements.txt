@@ -1,0 +1,31 @@
+openai
+ipykernel
+langchain
+langchain_openai
+python-dotenv
+langchain_community
+langchain_core
+streamlit
+langchain_groq 
+Pylance 
+langgraph
+pydantic
+langchain_huggingface
+langchain_chroma
+accelerate
+arxiv
+wikipedia
+duckduckgo-search
+mysql-connector-python
+validators  # == 0.28.1 ##validate the url
+youtube_transcript_api
+unstructured
+pytube
+validators
+numexpr
+huggingface_hub ## For the API calls
+minijinja
+datasets
+cassio
+PyPDF2
+gradio # for code llama demo
