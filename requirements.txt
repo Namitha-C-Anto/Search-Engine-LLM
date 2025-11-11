@@ -1,12 +1,12 @@
 openai
 ipykernel
-langchain
 langsmith
-langchain_openai
-python-dotenv
-langchain_community
-langchain_core
 streamlit
+langchain
+langchain-core
+langchain-community
+langchain-openai  # Required for most tool-calling agents
+python-dotenv  
 langchain_groq 
 Pylance 
 langgraph
@@ -31,5 +31,6 @@ cassio
 PyPDF2
 
 gradio # for code llama demo
+
 
 
