@@ -1,6 +1,6 @@
 openai
 ipykernel
-langchain
+langchain==0.0.350
 langchain_openai
 python-dotenv
 langchain_community
@@ -28,4 +28,5 @@ minijinja
 datasets
 cassio
 PyPDF2
+
 gradio # for code llama demo
