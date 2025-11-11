@@ -1,7 +1,8 @@
-langchain
+langchain==0.0.350
 python-dotenv
 ipykernel
-langchain-community
+langchain-community==0.0.8
+langsmith<0.1.0
 pypdf
 bs4
 arxiv
@@ -30,3 +31,4 @@ unstructured
 pytube
 numexpr
 huggingface_hub
+
