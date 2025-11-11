@@ -1,53 +1,96 @@
 import streamlit as st
-from langchain_groq import ChatGroq
-from langchain_community.utilities import ArxivAPIWrapper,WikipediaAPIWrapper
-from langchain_community.tools import ArxivQueryRun,WikipediaQueryRun,DuckDuckGoSearchRun
-from langchain.agents import initialize_agent,AgentType
-from langchain.callbacks import StreamlitCallbackHandler
 import os
 from dotenv import load_dotenv
-## Code
-####
 
-## Arxiv and wikipedia Tools
-arxiv_wrapper=ArxivAPIWrapper(top_k_results=1, doc_content_chars_max=200)
-arxiv=ArxivQueryRun(api_wrapper=arxiv_wrapper)
+# Load environment variables (like API keys if they're in .env file)
+load_dotenv()
 
-api_wrapper=WikipediaAPIWrapper(top_k_results=1,doc_content_chars_max=200)
-wiki=WikipediaQueryRun(api_wrapper=api_wrapper)
+# --- New Imports for Modular LangChain ---
+from langchain_groq import ChatGroq
+from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper
+from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
+from langchain_community.callbacks import StreamlitCallbackHandler 
 
-search=DuckDuckGoSearchRun(name="Search")
+# Core Agent Imports (new style)
+from langchain.agents import create_react_agent, AgentExecutor
+from langchain_core.prompts import ChatPromptTemplate
+# ----------------------------------------
 
 
-st.title("🔎 LangChain - Chat with search")
+st.title("🔎 LangChain - Chat with Search")
 """
-In this example, we're using `StreamlitCallbackHandler` to display the thoughts and actions of an agent in an interactive Streamlit app.
-Try more LangChain 🤝 Streamlit Agent examples at [github.com/langchain-ai/streamlit-agent](https://github.com/langchain-ai/streamlit-agent).
+This application uses the modern LangChain Expression Language (LCEL) and the `create_react_agent` approach for resilient deployment.
 """
 
 ## Sidebar for settings
 st.sidebar.title("Settings")
-api_key=st.sidebar.text_input("Enter your Groq API Key:",type="password")
+# Use st.secrets or load_dotenv for API key, but handling it via sidebar is retained for local testing
+# Get API key from sidebar or environment variable
+groq_api_key = st.sidebar.text_input("Enter your Groq API Key:", type="password", 
+                                     value=os.getenv("GROQ_API_KEY", ""))
+
+# Ensure API key is available before proceeding
+if not groq_api_key:
+    st.error("Please enter your Groq API Key in the sidebar.")
+    st.stop()
+
+
+# --- Tool Setup ---
+arxiv_wrapper = ArxivAPIWrapper(top_k_results=1, doc_content_chars_max=200)
+arxiv = ArxivQueryRun(api_wrapper=arxiv_wrapper)
+
+wiki_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=200)
+wiki = WikipediaQueryRun(api_wrapper=wiki_wrapper)
+
+search = DuckDuckGoSearchRun(name="Search")
+tools = [search, arxiv, wiki]
+# ------------------
+
 
 if "messages" not in st.session_state:
-    st.session_state["messages"]=[
-        {"role":"assisstant","content":"Hi,I'm a chatbot who can search the web. How can I help you?"}
+    st.session_state["messages"] = [
+        {"role": "assistant", "content": "Hi, I'm a chatbot who can search the web. How can I help you?"}
     ]
 
+# Display chat messages
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg['content'])
 
-if prompt:=st.chat_input(placeholder="What is machine learning?"):
-    st.session_state.messages.append({"role":"user","content":prompt})
+
+if prompt := st.chat_input(placeholder="What is machine learning?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
+    
+    # Initialize LLM and Agent inside the chat block
+    llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192", streaming=True)
+    
+    
+    # --- New Agent Logic (Replaces initialize_agent) ---
+    # 1. Define the Prompt Template (Standard ReAct format)
+    prompt_template = ChatPromptTemplate.from_messages(
+        [
+            ("system", "You are a helpful assistant. Use the provided tools to answer questions."),
+            ("user", "{input}"),
+            ("placeholder", "{agent_scratchpad}"),
+        ]
+    )
 
-    llm=ChatGroq(groq_api_key=api_key,model_name="Llama3-8b-8192",streaming=True)
-    tools=[search,arxiv,wiki]
+    # 2. Create the Agent
+    agent = create_react_agent(llm, tools, prompt_template)
 
-    search_agent=initialize_agent(tools,llm,agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,handling_parsing_errors=True)
+    # 3. Create the Executor
+    search_agent = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    # ----------------------------------------------------
+
 
     with st.chat_message("assistant"):
-        st_cb=StreamlitCallbackHandler(st.container(),expand_new_thoughts=False)
-        response=search_agent.run(st.session_state.messages,callbacks=[st_cb])
-        st.session_state.messages.append({'role':'assistant',"content":response})
-        st.write(response)
+        st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
+        
+        # The .invoke method is the standard way to call agents and chains now
+        response = search_agent.invoke({"input": prompt}, config={"callbacks": [st_cb]})
+        
+        # The result is a dictionary, extract the final answer
+        final_answer = response.get("output", "Could not retrieve an answer.")
+        
+        st.session_state.messages.append({'role': 'assistant', "content": final_answer})
+        st.write(final_answer)
