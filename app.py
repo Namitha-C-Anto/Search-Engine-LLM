@@ -2,7 +2,9 @@ import streamlit as st
 from langchain_groq import ChatGroq
 from langchain_community.utilities import WikipediaAPIWrapper, ArxivAPIWrapper
 from langchain_community.tools import WikipediaQueryRun, ArxivQueryRun, DuckDuckGoSearchRun
-from langchain.agents import initialize_agent, agent_types
+#from langchain.agents import initialize_agent, agent_types
+from langchain.agents import initialize_agent, AgentType
+
 from langchain.callbacks import StreamlitCallbackHandler ## allows you to communicate with all this tools
 import os
 from dotenv import load_dotenv
@@ -35,8 +37,12 @@ if "messages" not in st.session_state:
         {"role": "Assistant", "content":"Hi, I am a chatbot who can search the web. How can I a help you?"}
     ]
 
+#for msg in st.session_state.messages:
+#    st.chat_message(msg["role"]).write(msg["content"])
+
+
 for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg["content"])
+    st.chat_message(msg["role"]).write(str(msg["content"]))
 
     #st.chat_input(...): This is a function from the Streamlit library that renders 
     #a text input box at the bottom of a chat interface in a web application. 
@@ -52,7 +58,13 @@ if prompt:=st.chat_input(placeholder="What is Machine Learning?"):
     tools = [search]#, arxiv, wiki]
 
                                                 ## based on how they handle the context & memory
-    #search_agent= initialize_agent(tools=tools, llm= llm, agent=agent_types.ZERO_SHOT_REACT_DESCRIPTION, handling_parsing_errors = True )
+   # search_agent= initialize_agent(tools=tools, llm= llm, agent=agent_types.ZERO_SHOT_REACT_DESCRIPTION, handling_parsing_errors = True )
+    search_agent = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    handle_parsing_errors=True
+)
 
     from langchain.agents import create_react_agent, AgentExecutor
     from langchain import hub
