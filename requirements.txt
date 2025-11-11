@@ -1,6 +1,6 @@
 openai
 ipykernel
-langchain==0.0.350
+langchain
 langsmith
 langchain_openai
 python-dotenv
@@ -31,4 +31,5 @@ cassio
 PyPDF2
 
 gradio # for code llama demo
+
 
