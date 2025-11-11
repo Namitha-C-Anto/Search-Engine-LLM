@@ -1,36 +1,32 @@
-openai
-ipykernel
-langsmith
-streamlit
 langchain
-langchain-core
+python-dotenv
+ipykernel
 langchain-community
-langchain-openai  # Required for most tool-calling agents
-python-dotenv  
-langchain_groq 
-Pylance 
-langgraph
-pydantic
+pypdf
+bs4
+arxiv
+pymupdf
+wikipedia
+langchain-text-splitters
+langchain-openai
+chromadb
+sentence_transformers
 langchain_huggingface
+faiss-cpu
 langchain_chroma
-accelerate
+duckdb
+pandas
+openai
+langchain-groq
+duckduckgo_search==5.3.1b1
+pymupdf
 arxiv
 wikipedia
-duckduckgo-search
 mysql-connector-python
-validators  # == 0.28.1 ##validate the url
+SQLAlchemy
+validators==0.28.1
 youtube_transcript_api
 unstructured
 pytube
-validators
 numexpr
-huggingface_hub ## For the API calls
-minijinja
-datasets
-cassio
-PyPDF2
-
-gradio # for code llama demo
-
-
-
+huggingface_hub
