@@ -1,7 +1,9 @@
-langchain 
+streamlit
+langchain
+langchain-core
+langchain-community
 python-dotenv
-ipykernel
-langchain-community 
+ipykernel 
 langsmith 
 pypdf
 bs4
@@ -31,4 +33,5 @@ unstructured
 pytube
 numexpr
 huggingface_hub
+
 
