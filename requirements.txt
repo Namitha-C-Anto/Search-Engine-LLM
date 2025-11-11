@@ -1,8 +1,8 @@
-langchain==0.0.350
+langchain 
 python-dotenv
 ipykernel
-langchain-community==0.0.8
-langsmith<0.1.0
+langchain-community 
+langsmith 
 pypdf
 bs4
 arxiv
