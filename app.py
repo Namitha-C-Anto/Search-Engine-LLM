@@ -9,7 +9,8 @@ from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuck
 from langchain_community.callbacks import StreamlitCallbackHandler 
 
 # Using the unified AgentExecutor for the ReAct pattern
-from langchain.agents import create_react_agent, AgentExecutor  # ← UPDATED
+from langchain_classic.agents import create_react_agent
+from langchain.agents import AgentExecutor  # ← UPDATED
 from langchain_core.prompts import PromptTemplate
 
 load_dotenv()
