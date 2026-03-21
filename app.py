@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
  
 from langchain_groq import ChatGroq
-from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper
+from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.callbacks import StreamlitCallbackHandler 
  
@@ -31,7 +31,9 @@ arxiv = ArxivQueryRun(api_wrapper=arxiv_wrapper)
 wiki_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=200)
 wiki = WikipediaQueryRun(api_wrapper=wiki_wrapper)
 
-search = DuckDuckGoSearchRun(name="Search")
+duck_wrapper = DuckDuckGoSearchAPIWrapper(top_k_results=1, doc_content_chars_max=200)
+search = DuckDuckGoSearchRun(api_wrapper=duck_wrapper)
+
 tools = [search, arxiv, wiki]
 
 # --- Chat Session Management ---
