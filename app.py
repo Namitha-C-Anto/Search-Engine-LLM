@@ -2,17 +2,20 @@ import streamlit as st
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
- 
+# Standard 2026 Imports
 from langchain_groq import ChatGroq
 from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.callbacks import StreamlitCallbackHandler 
- 
-from langchain_classic.agents import create_react_agent 
-from langchain_core.prompts import ChatPromptTemplate
-# -----------------------------
 
+# Using the unified AgentExecutor for the ReAct pattern
+from langchain_classic.agents import create_react_agent
+from langchain.agents import AgentExecutor
+from langchain_core.prompts import PromptTemplate
+
+load_dotenv()
+
+st.set_page_config(page_title="LangChain Search", page_icon="🔎")
 st.title("🔎 LangChain - Chat with Search")
 
 ## Sidebar Settings
@@ -36,6 +39,30 @@ search = DuckDuckGoSearchRun(api_wrapper=duck_wrapper)
 
 tools = [search, arxiv, wiki]
 
+# --- REACT PROMPT TEMPLATE (The Critical Fix) ---
+# ReAct agents MUST have these exact variables in the string: {tools}, {tool_names}, {agent_scratchpad}
+template = """Answer the following questions as best you can. You have access to the following tools:
+
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!
+
+Question: {input}
+Thought:{agent_scratchpad}"""
+
+prompt_template = PromptTemplate.from_template(template)
+
 # --- Chat Session Management ---
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
@@ -45,29 +72,40 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg['content'])
 
-if prompt := st.chat_input(placeholder="What is machine learning?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
+# Using 'user_query' instead of 'prompt' to avoid naming conflicts
+if user_query := st.chat_input(placeholder="What is machine learning?"):
+    st.session_state.messages.append({"role": "user", "content": user_query})
+    st.chat_message("user").write(user_query)
     
-    # Use the 2026 standard model
+    # Initialize LLM
     llm = ChatGroq(groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile", streaming=True)
     
-    # --- Modern Agent Logic --- 
-    search_agent = create_react_agent(
+    # 1. Create the Agent Logic (The "Brain")
+    # We pass the prompt_template OBJECT here, not a string.
+    agent = create_react_agent(
         llm=llm,
         tools=tools,
-        prompt="You are a helpful assistant. Use tools to verify facts before answering."
+        prompt=prompt_template
+    )
+
+    # 2. Create the Agent Executor (The "Body")
+    # 'verbose' and 'handle_parsing_errors' live here!
+    search_agent = AgentExecutor(
+        agent=agent, 
+        tools=tools, 
+        verbose=True, 
+        handle_parsing_errors=True
     )
 
     with st.chat_message("assistant"):
         st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
          
+        # We invoke the agent with the user's text
         response = search_agent.invoke(
-            {"input": prompt}, 
+            {"input": user_query}, 
             config={"callbacks": [st_cb]}
         )
         
-        # Extract response from the modern message-based output
         final_answer = response["output"]
         
         st.session_state.messages.append({'role': 'assistant', "content": final_answer})
