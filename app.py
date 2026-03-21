@@ -3,15 +3,14 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# --- 2026 Standard Imports ---
+ 
 from langchain_groq import ChatGroq
 from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.callbacks import StreamlitCallbackHandler 
  
 from langchain.agents import create_agent 
-from langchain_core.prompts import PromptTemplate         # Standard for ReAct
+from langchain_core.prompts import ChatPromptTemplate
 # -----------------------------
 
 st.title("🔎 LangChain - Chat with Search")
@@ -48,47 +47,29 @@ if prompt := st.chat_input(placeholder="What is machine learning?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
     
-    # Initialize LLM with streaming enabled
+    # Use the 2026 standard model
     llm = ChatGroq(groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile", streaming=True)
     
-    # --- ReAct Agent Logic ---
-    # ReAct agents require a very specific prompt structure with these exact variables
-    template = """Answer the following questions as best you can. You have access to the following tools:
-
-{tools}
-
-Use the following format:
-
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
-
-Begin!
-
-Question: {input}
-Thought:{agent_scratchpad}"""
-
-    prompt_template = PromptTemplate.from_template(template)
-
-    # Create the Agent and Executor
-    agent = create_agent(llm, tools, prompt_template)
-    search_agent = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+    # --- Modern Agent Logic --- 
+    search_agent = create_agent(
+        model=llm,
+        tools=tools,
+        system_prompt="You are a helpful assistant. Use tools to verify facts before answering.",
+        debug=True # This replaces 'verbose=True'
+    )
 
     with st.chat_message("assistant"):
-        # The CallbackHandler creates the "thinking" expanders in Streamlit
         st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
         
-        # Invoke the agent
+        # We invoke the agent directly (no AgentExecutor wrapper needed)
+        # Note: 2026 standard uses 'messages' key for the conversation
         response = search_agent.invoke(
             {"input": prompt}, 
             config={"callbacks": [st_cb]}
         )
         
-        final_answer = response.get("output", "I encountered an error while searching.")
+        # Extract response from the modern message-based output
+        final_answer = response["output"]
+        
         st.session_state.messages.append({'role': 'assistant', "content": final_answer})
         st.write(final_answer)
