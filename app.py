@@ -9,9 +9,8 @@ from langchain_groq import ChatGroq
 from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.callbacks import StreamlitCallbackHandler 
-
-# Corrected Imports for LangChain 1.2+
-from langchain.agents import create_react_agent
+ 
+from langchain.agents import create_agent
 from langchain.agents.agent_executor import AgentExecutor  # Moved here in 2026
 from langchain_core.prompts import PromptTemplate         # Standard for ReAct
 # -----------------------------
@@ -78,7 +77,7 @@ Thought:{agent_scratchpad}"""
     prompt_template = PromptTemplate.from_template(template)
 
     # Create the Agent and Executor
-    agent = create_react_agent(llm, tools, prompt_template)
+    agent = create_agent(llm, tools, prompt_template)
     search_agent = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
 
     with st.chat_message("assistant"):
