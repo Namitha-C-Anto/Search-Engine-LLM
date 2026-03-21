@@ -1,4 +1,4 @@
-# Search-Engine-LLM🔎 LangChain - Autonomous Search Agent
+🔎 LangChain - Autonomous Search Agent
 A high-speed, reasoning-based AI search engine that uses the ReAct (Reason + Act) framework to browse the web, academic papers, and Wikipedia. Unlike standard chatbots, this agent can independently decide which external tools to use to verify facts before answering.
 
 🚀 Business Value
