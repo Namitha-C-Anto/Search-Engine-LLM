@@ -54,7 +54,7 @@ if prompt := st.chat_input(placeholder="What is machine learning?"):
     
     # --- Modern Agent Logic --- 
     search_agent = create_react_agent(
-        model=llm,
+        llm=llm,
         tools=tools,
         system_prompt="You are a helpful assistant. Use tools to verify facts before answering.",
         debug=True # This replaces 'verbose=True'
