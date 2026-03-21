@@ -1,8 +1,8 @@
 streamlit
-langchain>=1.2.0
+langchain>=0.3.0
 langchain-groq
 langchain-community
-duckduckgo-search
+duckduckgo-search>=6.0.0
 wikipedia
 arxiv
 python-dotenv
