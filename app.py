@@ -10,8 +10,7 @@ from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.callbacks import StreamlitCallbackHandler 
  
-from langchain.agents import create_agent
-from langchain.agents.agent_executor import AgentExecutor  # Moved here in 2026
+from langchain.agents import create_agent 
 from langchain_core.prompts import PromptTemplate         # Standard for ReAct
 # -----------------------------
 
