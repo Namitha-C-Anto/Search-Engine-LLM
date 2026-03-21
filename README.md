@@ -1,7 +1,7 @@
 # 🔎 LangChain - Autonomous Search Agent
 A high-speed, reasoning-based AI search engine that uses the ReAct (Reason + Act) framework to browse the web, academic papers, and Wikipedia. Unlike standard chatbots, this agent can independently decide which external tools to use to verify facts before answering.
 
-##🚀 Business Value
+## 🚀 Business Value
 Fact Verification: Eliminates LLM hallucinations by cross-referencing real-time data from DuckDuckGo and Wikipedia.
 
 Academic Insights: Integrated with ArXiv to pull from the latest peer-reviewed research.
