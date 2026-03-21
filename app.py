@@ -56,8 +56,8 @@ if prompt := st.chat_input(placeholder="What is machine learning?"):
     search_agent = create_react_agent(
         llm=llm,
         tools=tools,
-        system_prompt="You are a helpful assistant. Use tools to verify facts before answering.",
-        debug=True # This replaces 'verbose=True'
+        prompt="You are a helpful assistant. Use tools to verify facts before answering.",
+        verbose=True
     )
 
     with st.chat_message("assistant"):
