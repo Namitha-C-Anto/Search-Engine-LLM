@@ -9,7 +9,7 @@ from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, 
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.callbacks import StreamlitCallbackHandler 
  
-from langchain.agents import create_agent 
+from langchain_classic.agents import create_react_agent 
 from langchain_core.prompts import ChatPromptTemplate
 # -----------------------------
 
@@ -53,7 +53,7 @@ if prompt := st.chat_input(placeholder="What is machine learning?"):
     llm = ChatGroq(groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile", streaming=True)
     
     # --- Modern Agent Logic --- 
-    search_agent = create_agent(
+    search_agent = create_react_agent(
         model=llm,
         tools=tools,
         system_prompt="You are a helpful assistant. Use tools to verify facts before answering.",
@@ -62,9 +62,7 @@ if prompt := st.chat_input(placeholder="What is machine learning?"):
 
     with st.chat_message("assistant"):
         st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
-        
-        # We invoke the agent directly (no AgentExecutor wrapper needed)
-        # Note: 2026 standard uses 'messages' key for the conversation
+         
         response = search_agent.invoke(
             {"input": prompt}, 
             config={"callbacks": [st_cb]}
